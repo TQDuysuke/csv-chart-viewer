@@ -27,7 +27,12 @@ export default function CSVChartApp() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://10.2.39.172:3000/"); // Thay bằng URL của bạn
+      const response = await fetch("https://database.tqduy.id.vn/", {
+        headers: {
+          "x-api-key": process.env.REACT_APP_API_KEY, // API key from environment variables
+          "x-uid": process.env.REACT_APP_UID,         // UID from environment variables
+        },
+      });
       const jsonData = await response.json();
 
       // Lấy key đầu tiên (ví dụ: "10.2.39.72")
