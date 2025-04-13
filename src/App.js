@@ -24,6 +24,7 @@ export default function CSVChartApp() {
   const [kalmanParams, setKalmanParams] = useState({ q: 1, r: 1, p: 1, k: 1 });
   const [isLiveView, setIsLiveView] = useState(true); // State to toggle between live and replay views
   const [selectedDate, setSelectedDate] = useState(""); // State for the selected date
+  const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
 
   useEffect(() => {
     setVisibleRange(([start]) => {
@@ -184,8 +185,26 @@ export default function CSVChartApp() {
     URL.revokeObjectURL(url);
   };
 
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+    document.body.classList.toggle("dark-mode", !isDarkMode); // Toggle class on body
+  };
+
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className={`p-4 max-w-4xl mx-auto ${isDarkMode ? "dark" : "light"}`}>
+      <div
+        style={{
+          position: "fixed",
+          top: "50%", // Center vertically
+          right: -10, // Fixed to the right side
+          zIndex: 1000,
+        }}
+      >
+        <button onClick={toggleDarkMode} className="button-primary p-2">
+          {isDarkMode ? "☀️" : "🌙"}
+        </button>
+      </div>
+
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => setIsLiveView(true)}
@@ -204,7 +223,7 @@ export default function CSVChartApp() {
 
       {!isLiveView && (
         <div className="mb-4">
-          <label htmlFor="date-picker" className="block mb-2">Select Date:</label>
+          <label htmlFor="date-picker" className="block mb-2">Select Date: -</label>
           <input
             type="date"
             id="date-picker"

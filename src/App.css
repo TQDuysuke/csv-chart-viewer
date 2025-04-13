@@ -8,16 +8,19 @@ button {
 input {
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #5cd65c; /* Green border for health theme */
   border-radius: 5px;
   width: 100%; /* Full width for mobile */
   box-sizing: border-box;
+  background-color: var(--input-bg); /* Dynamic background color */
+  color: var(--input-text); /* Dynamic text color */
 }
 
 label {
   font-size: 14px;
   margin-bottom: 5px;
   display: block;
+  color: #28a745; /* Green text for labels */
 }
 
 .flex-wrap {
@@ -38,6 +41,12 @@ label {
   label {
     display: inline-block;
     margin-bottom: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .recharts-wrapper {
+    padding-left: 0; /* Adjust padding when Y-axis is hidden */
   }
 }
 
@@ -75,11 +84,11 @@ label {
   font-size: 16px;
   font-weight: bold;
   color: white;
-  background: linear-gradient(90deg, #4caf50, #81c784);
+  background: linear-gradient(90deg, #28a745, #5cd65c); /* Vibrant green tones */
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
 }
 
 .button-primary:hover {
@@ -98,13 +107,27 @@ label {
   border-radius: 5px;
   color: white;
   display: inline-block;
-  margin-top: 10px; /* Added margin to separate from buttons */
+  margin-top: 10px;
 }
 
 .status-live {
-  background-color: #4caf50;
+  background-color: #28a745; /* Vibrant green for live status */
 }
 
 .status-replay {
-  background-color: #f44336;
+  background-color: #ff704d; /* Warm orange for replay status */
+}
+
+body.light-mode {
+  --input-bg: #ffffff; /* White background for light mode */
+  --input-text: #000000; /* Black text for light mode */
+  background-color: #ffffff;
+  color: #000000;
+}
+
+body.dark-mode {
+  --input-bg: #333333; /* Dark gray background for dark mode */
+  --input-text: #ffffff; /* White text for dark mode */
+  background-color: #121212;
+  color: #ffffff;
 }
