@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./App.css"; // Import your CSS file here
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
 
 const applyKalmanFilter = (data, q, r, p, k) => {
   let x = data[0]?.value || 0;
@@ -18,15 +20,17 @@ export default function CSVChartApp() {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [visibleRange, setVisibleRange] = useState([0, 1000]);
-  const [zoom, setZoom] = useState(1);
   const [showValue, setShowValue] = useState(1000);
   const [kalmanParams, setKalmanParams] = useState({ q: 1, r: 1, p: 1, k: 1 });
   const [isLiveView, setIsLiveView] = useState(true); // State to toggle between live and replay views
   const [selectedDate, setSelectedDate] = useState(""); // State for the selected date
 
   useEffect(() => {
-    setVisibleRange([0, showValue]);
-  }, [showValue]);
+    setVisibleRange(([start]) => {
+      const newStart = Math.max(0, Math.min(start, data.length - showValue));
+      return [newStart, newStart + showValue];
+    });
+  }, [showValue, data.length]);
 
   useEffect(() => {
     if (isLiveView) {
@@ -129,6 +133,57 @@ export default function CSVChartApp() {
     setVisibleRange([startIndex, startIndex + showValue]);
   };
 
+  const handleRangeChange = ([start, end]) => {
+    setVisibleRange([start, end]);
+  };
+
+  const handleRangeDrag = (delta) => {
+    setVisibleRange(([start, end]) => {
+      const rangeLength = end - start;
+      const newStart = Math.max(0, start + delta);
+      const newEnd = Math.min(data.length, newStart + rangeLength);
+      return [newStart, newEnd];
+    });
+  };
+
+  const handleShowValueChange = (newShowValue) => {
+    setShowValue(newShowValue);
+    setVisibleRange(([start]) => {
+      const newStart = Math.max(0, Math.min(start, data.length - newShowValue));
+      return [newStart, newStart + newShowValue];
+    });
+  };
+
+  const handleSlider2Change = (start) => {
+    setVisibleRange([start, start + showValue]);
+  };
+
+  const handleSlider1Change = (value) => {
+    handleShowValueChange(value);
+  };
+
+  const handleExportData = () => {
+    if (!selectedDate || !data.length) {
+      console.error("No data available to export.");
+      return;
+    }
+
+    const csvContent = [
+      ["Time", "Value"], // CSV header
+      ...data.map((row) => [row.time, row.value]), // Map data to CSV rows
+    ]
+      .map((e) => e.join(",")) // Join each row with commas
+      .join("\n"); // Join rows with newlines
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `data_${selectedDate}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <div className="flex flex-wrap gap-2 mb-4">
@@ -147,12 +202,6 @@ export default function CSVChartApp() {
         </button>
       </div>
 
-      <div className="mb-4">
-        <span className={`status-indicator ${isLiveView ? "status-live" : "status-replay"}`}>
-          {isLiveView ? "Live View Active" : "Replay View Active"}
-        </span>
-      </div>
-
       {!isLiveView && (
         <div className="mb-4">
           <label htmlFor="date-picker" className="block mb-2">Select Date:</label>
@@ -165,9 +214,15 @@ export default function CSVChartApp() {
           />
         </div>
       )}
+      
+      <div className="mb-4">
+        <span className={`status-indicator ${isLiveView ? "status-live" : "status-replay"}`}>
+          {isLiveView ? "Live View Active" : "Replay View Active"}
+        </span>
+      </div>
 
       <div className="h-[400px] overflow-y-auto" onWheel={handleScroll}>
-        <ResponsiveContainer width="100%" height={400 * zoom}>
+        <ResponsiveContainer width="100%" height={400}>
           <LineChart data={filteredData.slice(visibleRange[0], visibleRange[1])}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="time" interval={Math.max(1, Math.floor(showValue / 10))} angle={-30} height={60} tick={{ fontSize: 10 }} />
@@ -178,24 +233,61 @@ export default function CSVChartApp() {
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4">
+        <label className="block mb-2">Adjust Visible Range:</label>
+        <Slider
+          min={1}
+          max={20000}
+          value={showValue}
+          onChange={handleSlider1Change}
+          trackStyle={[{ backgroundColor: "#8884d8" }]}
+          handleStyle={[{ borderColor: "#8884d8" }]}
+        />
+        <div className="mt-2 flex justify-between text-sm">
+          <span>Show Value: {showValue}</span>
+        </div>
+      </div>
+
+      {!isLiveView && (
+        <div className="mt-4">
+          <label className="block mb-2">Adjust Start Time:</label>
+          <Slider
+            min={0}
+            max={data.length - showValue}
+            value={visibleRange[0]}
+            onChange={handleSlider2Change}
+            trackStyle={[{ backgroundColor: "#82ca9d" }]}
+            handleStyle={[{ borderColor: "#82ca9d" }]}
+          />
+          <div className="mt-2 flex justify-between text-sm">
+            <span>
+              Start Time: {filteredData[visibleRange[0]]?.time || "N/A"}
+            </span>
+            <span> - </span>
+            <span>
+              End Time: {filteredData[visibleRange[1] - 1]?.time || "N/A"}
+            </span>
+          </div>
+        </div>
+      )}
+
         {!isLiveView && (
           <>
+          <div className="mt-4 flex flex-wrap gap-2">
             <button onClick={handleJumpToStart} className="button-primary w-full sm:w-auto">Jump to Start</button>
             <button onClick={handlePrev} className="button-primary w-full sm:w-auto">Prev {showValue}</button>
             <button onClick={handleNext} className="button-primary w-full sm:w-auto">Next {showValue}</button>
             <button onClick={handleJumpToEnd} className="button-primary w-full sm:w-auto">Jump to End</button>
+          </div>
+            <div className="mt-4">
+              <button onClick={handleExportData} className="button-primary w-full sm:w-auto">
+                Export Data as CSV
+              </button>
+            </div>
           </>
         )}
-      </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 items-center">
-        <label className="w-full sm:w-auto">Zoom: </label>
-        <input type="number" step="0.1" min="0.5" max="2" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="p-2 border rounded w-full sm:w-auto" />
-        <label className="w-full sm:w-auto">Show Values: </label>
-        <input type="number" step="100" value={showValue} onChange={(e) => setShowValue(Number(e.target.value))} className="p-2 border rounded w-full sm:w-auto" />
-      </div>
-
+      <h2 className="text-lg font-semibold">Kalman Filter Parameters:</h2>
       <div className="mt-4 flex flex-wrap gap-2 items-center">
         <label className="w-full sm:w-auto">Q: </label>
         <input type="number" step="0.1" value={kalmanParams.q} onChange={(e) => setKalmanParams({ ...kalmanParams, q: Number(e.target.value) })} className="p-2 border rounded w-full sm:w-auto" />
