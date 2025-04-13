@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./App.css"; // Import your CSS file here
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 
 const applyKalmanFilter = (data, q, r, p, k) => {
@@ -16,54 +17,78 @@ const applyKalmanFilter = (data, q, r, p, k) => {
 export default function CSVChartApp() {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [visibleRange, setVisibleRange] = useState([0, 5000]);
+  const [visibleRange, setVisibleRange] = useState([0, 1000]);
   const [zoom, setZoom] = useState(1);
-  const [showValue, setShowValue] = useState(5000);
+  const [showValue, setShowValue] = useState(1000);
   const [kalmanParams, setKalmanParams] = useState({ q: 1, r: 1, p: 1, k: 1 });
+  const [isLiveView, setIsLiveView] = useState(true); // State to toggle between live and replay views
+  const [selectedDate, setSelectedDate] = useState(""); // State for the selected date
 
   useEffect(() => {
     setVisibleRange([0, showValue]);
   }, [showValue]);
 
+  useEffect(() => {
+    if (isLiveView) {
+      const interval = setInterval(fetchData, 3000); // Fetch data every 3 seconds in live view
+      return () => clearInterval(interval); // Cleanup interval on component unmount
+    }
+  }, [isLiveView, showValue, kalmanParams]); // Dependencies to ensure the latest values are used
+
+  useEffect(() => {
+    if (!isLiveView && selectedDate) {
+      fetchData(); // Fetch data when a date is selected in replay mode
+    }
+  }, [selectedDate, isLiveView]); // Dependencies to trigger on date or view mode change
+
   const fetchData = async () => {
     try {
       const response = await fetch("https://database.tqduy.id.vn/", {
         headers: {
-          "x-api-key": process.env.REACT_APP_API_KEY, // API key from environment variables
-          "x-uid": process.env.REACT_APP_UID,         // UID from environment variables
+          "x-api-key": "IzUKf0FyBbktDiRxgry6fpRg8NTpxmb8XU777DDhwqDVnuUbolhSYxSUsijwBkN2", // API key from environment variables
+          "x-uid": "EDS",         // UID from environment variables
         },
       });
       const jsonData = await response.json();
 
       // Lấy key đầu tiên (ví dụ: "10.2.39.72")
       const ipKey = Object.keys(jsonData)[0];
-      const dateKey = Object.keys(jsonData[ipKey])[0];
+      const dateKey = isLiveView ? Object.keys(jsonData[ipKey])[0] : selectedDate; // Use selected date in replay mode
+      if (!jsonData[ipKey][dateKey]) {
+        console.error("No data available for the selected date");
+        setData([]);
+        setFilteredData([]);
+        return;
+      }
       const rawData = jsonData[ipKey][dateKey];
+
+      // Extract the starting timestamp from the first chunk
+      const startingTimestamp = JSON.parse(rawData[0]).t;
 
       // Chuyển đổi chuỗi dữ liệu thành mảng giá trị
       const parsedData = rawData.flatMap((chunk, chunkIndex) => {
-        const values = chunk
-          .replace(/{|}/g, "") // Loại bỏ dấu ngoặc nhọn
-          .split(",") // Tách các giá trị
-          .map((value) => parseFloat(value)); // Chuyển thành số
-
+        const { values } = JSON.parse(chunk); // Extract 'values' and 't'
         return values.map((value, index) => {
           const totalIndex = chunkIndex * values.length + index;
-          const totalMinutes = Math.floor(totalIndex / 500);
-          const hours = Math.floor(totalMinutes / 60).toString().padStart(2, "0");
-          const minutes = (totalMinutes % 60).toString().padStart(2, "0");
-          const seconds = ((totalIndex % 500) * 60 / 500).toFixed(0).padStart(2, "0");
+          const currentTimestamp = startingTimestamp + totalIndex * 2; // Increment by 2ms for each sample
+          const date = new Date(currentTimestamp + 20 * 60 * 60 * 1000); // Adjust to UTC+7
+
+          const hours = date.getUTCHours().toString().padStart(2, "0");
+          const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+          const seconds = date.getUTCSeconds().toString().padStart(2, "0");
+          const milliseconds = date.getUTCMilliseconds().toString().padStart(3, "0");
 
           return {
-            time: `${hours}:${minutes}:${seconds}`,
-            value: value || 0, // Đảm bảo giá trị không phải NaN
+            time: `${hours}:${minutes}:${seconds}.${milliseconds}`, // Format time using the adjusted timestamp
+            value: value || 0, // Ensure value is not NaN
           };
         });
       });
 
       setData(parsedData);
+      const startIndex = Math.max(parsedData.length - showValue, 0);
       setFilteredData(applyKalmanFilter(parsedData, kalmanParams.q, kalmanParams.r, kalmanParams.p, kalmanParams.k));
-      setVisibleRange([0, showValue]);
+      setVisibleRange([startIndex, startIndex + showValue]);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -95,11 +120,53 @@ export default function CSVChartApp() {
     });
   };
 
+  const handleJumpToStart = () => {
+    setVisibleRange([0, showValue]);
+  };
+
+  const handleJumpToEnd = () => {
+    const startIndex = Math.max(data.length - showValue, 0);
+    setVisibleRange([startIndex, startIndex + showValue]);
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <button onClick={fetchData} className="p-2 bg-blue-500 text-white rounded mb-4">Fetch Data</button>
+      <div className="flex flex-wrap gap-2 mb-4">
+        <button
+          onClick={() => setIsLiveView(true)}
+          className={`button-primary ${isLiveView ? "bg-blue-500" : "bg-gray-300"}`}
+        >
+          Live View
+        </button>
 
-      <div className="h-400px overflow-y-auto" onWheel={handleScroll}>
+        <button
+          onClick={() => setIsLiveView(false)}
+          className={`button-primary ${!isLiveView ? "bg-blue-500" : "bg-gray-300"}`}
+        >
+          Replay View
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <span className={`status-indicator ${isLiveView ? "status-live" : "status-replay"}`}>
+          {isLiveView ? "Live View Active" : "Replay View Active"}
+        </span>
+      </div>
+
+      {!isLiveView && (
+        <div className="mb-4">
+          <label htmlFor="date-picker" className="block mb-2">Select Date:</label>
+          <input
+            type="date"
+            id="date-picker"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="p-2 border rounded w-full sm:w-auto"
+          />
+        </div>
+      )}
+
+      <div className="h-[400px] overflow-y-auto" onWheel={handleScroll}>
         <ResponsiveContainer width="100%" height={400 * zoom}>
           <LineChart data={filteredData.slice(visibleRange[0], visibleRange[1])}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -111,28 +178,34 @@ export default function CSVChartApp() {
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <button onClick={handlePrev} className="p-2 bg-gray-500 text-white rounded">Prev {showValue}</button>
-        <button onClick={handleNext} className="p-2 bg-green-500 text-white rounded">Next {showValue}</button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {!isLiveView && (
+          <>
+            <button onClick={handleJumpToStart} className="button-primary w-full sm:w-auto">Jump to Start</button>
+            <button onClick={handlePrev} className="button-primary w-full sm:w-auto">Prev {showValue}</button>
+            <button onClick={handleNext} className="button-primary w-full sm:w-auto">Next {showValue}</button>
+            <button onClick={handleJumpToEnd} className="button-primary w-full sm:w-auto">Jump to End</button>
+          </>
+        )}
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <label>Zoom: </label>
-        <input type="number" step="0.1" min="0.5" max="2" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="p-2 border rounded" />
-        <label>Show Values: </label>
-        <input type="number" step="100" value={showValue} onChange={(e) => setShowValue(Number(e.target.value))} className="p-2 border rounded" />
+      <div className="mt-4 flex flex-wrap gap-2 items-center">
+        <label className="w-full sm:w-auto">Zoom: </label>
+        <input type="number" step="0.1" min="0.5" max="2" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="p-2 border rounded w-full sm:w-auto" />
+        <label className="w-full sm:w-auto">Show Values: </label>
+        <input type="number" step="100" value={showValue} onChange={(e) => setShowValue(Number(e.target.value))} className="p-2 border rounded w-full sm:w-auto" />
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <label>Q: </label>
-        <input type="number" step="0.1" value={kalmanParams.q} onChange={(e) => setKalmanParams({ ...kalmanParams, q: Number(e.target.value) })} className="p-2 border rounded" />
-        <label>R: </label>
-        <input type="number" step="0.1" value={kalmanParams.r} onChange={(e) => setKalmanParams({ ...kalmanParams, r: Number(e.target.value) })} className="p-2 border rounded" />
-        <label>P: </label>
-        <input type="number" step="0.1" value={kalmanParams.p} onChange={(e) => setKalmanParams({ ...kalmanParams, p: Number(e.target.value) })} className="p-2 border rounded" />
-        <label>K: </label>
-        <input type="number" step="0.1" value={kalmanParams.k} onChange={(e) => setKalmanParams({ ...kalmanParams, k: Number(e.target.value) })} className="p-2 border rounded" />
-        <button onClick={handleApplyFilter} className="p-2 bg-purple-500 text-white rounded">Apply Filter</button>
+      <div className="mt-4 flex flex-wrap gap-2 items-center">
+        <label className="w-full sm:w-auto">Q: </label>
+        <input type="number" step="0.1" value={kalmanParams.q} onChange={(e) => setKalmanParams({ ...kalmanParams, q: Number(e.target.value) })} className="p-2 border rounded w-full sm:w-auto" />
+        <label className="w-full sm:w-auto">R: </label>
+        <input type="number" step="0.1" value={kalmanParams.r} onChange={(e) => setKalmanParams({ ...kalmanParams, r: Number(e.target.value) })} className="p-2 border rounded w-full sm:w-auto" />
+        <label className="w-full sm:w-auto">P: </label>
+        <input type="number" step="0.1" value={kalmanParams.p} onChange={(e) => setKalmanParams({ ...kalmanParams, p: Number(e.target.value) })} className="p-2 border rounded w-full sm:w-auto" />
+        <label className="w-full sm:w-auto">K: </label>
+        <input type="number" step="0.1" value={kalmanParams.k} onChange={(e) => setKalmanParams({ ...kalmanParams, k: Number(e.target.value) })} className="p-2 border rounded w-full sm:w-auto" />
+        <button onClick={handleApplyFilter} className="button-primary w-full sm:w-auto">Apply Filter</button>
       </div>
     </div>
   );

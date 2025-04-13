@@ -1,38 +1,110 @@
-.App {
-  text-align: center;
+button {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 100%; /* Full width for mobile */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%; /* Full width for mobile */
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  display: block;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.flex-wrap {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  flex-wrap: wrap;
+  gap: 15px; /* Increased gap for better spacing */
+}
+
+@media (min-width: 640px) {
+  button {
+    width: auto; /* Auto width for larger screens */
+  }
+
+  input {
+    width: auto; /* Auto width for larger screens */
+  }
+
+  label {
+    display: inline-block;
+    margin-bottom: 0;
+  }
+}
+
+.max-w-4xl {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.sm\:w-auto {
+  width: auto;
+}
+
+.mb-4 {
+  margin-bottom: 20px; /* Adjusted margin for consistent spacing */
+}
+
+.button-primary {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
   color: white;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.App-link {
-  color: #61dafb;
+.button-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.button-primary:active {
+  transform: scale(0.95);
+}
+
+.status-indicator {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  display: inline-block;
+  margin-top: 10px; /* Added margin to separate from buttons */
+}
+
+.status-live {
+  background-color: #4caf50;
+}
+
+.status-replay {
+  background-color: #f44336;
 }
