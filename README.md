@@ -1,6 +1,8 @@
-# CSV Chart Viewer
+# 1-Lead ECG by EDS
 
-A React-based application for visualizing CSV data in a chart format. The app supports data filtering using a Kalman filter and allows zooming and scrolling through the data.
+![1-Lead ECG by EDS](public/eds-dark-logo.svg)
+
+A React-based application for visualizing 1-lead ECG data in a chart format. The app supports data filtering using a Kalman filter and allows zooming and scrolling through the data.
 
 ## Features
 
@@ -9,13 +11,14 @@ A React-based application for visualizing CSV data in a chart format. The app su
 - Apply a Kalman filter to smooth the data.
 - Zoom and scroll through the chart.
 - Adjustable parameters for the Kalman filter.
+- Dark mode toggle and logout functionality.
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/csv-chart-viewer.git
-   cd csv-chart-viewer
+   git clone https://github.com/your-repo/1-lead-ecg.git
+   cd 1-lead-ecg
    ```
 
 2. Install dependencies:
@@ -38,7 +41,7 @@ A React-based application for visualizing CSV data in a chart format. The app su
 
 2. Open the app in your browser at `http://localhost:3000`.
 
-3. Click the "Fetch Data" button to load data from the API.
+3. Log in using your `UID` and `API Key`.
 
 4. Use the controls to:
    - Navigate through the data (`Prev` and `Next` buttons).
@@ -46,10 +49,16 @@ A React-based application for visualizing CSV data in a chart format. The app su
    - Change the number of visible data points.
    - Modify Kalman filter parameters (`Q`, `R`, `P`, `K`) and apply the filter.
 
+5. Toggle between light and dark mode using the toggle button.
+
+6. Log out using the logout button next to the `UID`.
+
 ## Dependencies
 
 - React
 - Recharts
+- js-cookie
+- rc-slider
 
 ## License
 
