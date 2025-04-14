@@ -34,6 +34,7 @@ export default function CSVChartApp() {
   const [isLiveView, setIsLiveView] = useState(true);
   const [selectedDate, setSelectedDate] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [error, setError] = useState(""); // State to store error messages
 
   useEffect(() => {
     // Check for existing login credentials in cookies
@@ -94,15 +95,15 @@ export default function CSVChartApp() {
           "x-uid": credentials.UID,
         },
       });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
       const jsonData = await response.json();
 
       const ipKey = Object.keys(jsonData)[0];
       const dateKey = isLiveView ? Object.keys(jsonData[ipKey])[0] : selectedDate;
       if (!jsonData[ipKey][dateKey]) {
-        console.error("No data available for the selected date");
-        setData([]);
-        setFilteredData([]);
-        return;
+        throw new Error("No data available for the selected date");
       }
       const rawData = jsonData[ipKey][dateKey];
 
@@ -131,8 +132,10 @@ export default function CSVChartApp() {
       const startIndex = Math.max(parsedData.length - showValue, 0);
       setFilteredData(applyKalmanFilter(parsedData, kalmanParams.q, kalmanParams.r, kalmanParams.p, kalmanParams.k));
       setVisibleRange([startIndex, startIndex + showValue]);
+      setError(""); // Clear any previous errors
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError(error.message); // Set the error message
     }
   };
 
@@ -151,18 +154,24 @@ export default function CSVChartApp() {
       />
       {!isLiveView && <DatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate} />}
       <StatusIndicator isLiveView={isLiveView} />
-      <Chart
-        data={filteredData}
-        visibleRange={visibleRange}
-        showValue={showValue}
-        handleScroll={(e) => {
-          setVisibleRange(([start, end]) => {
-            const step = Math.max(100, showValue / 10);
-            const newStart = e.deltaY > 0 ? Math.min(start + step, data.length - showValue) : Math.max(start - step, 0);
-            return [newStart, newStart + showValue];
-          });
-        }}
-      />
+      {error ? ( // Conditionally render error message or chart
+        <div className="text-red-500 text-center mt-4">
+          <p>Error: {error}</p>
+        </div>
+      ) : (
+        <Chart
+          data={filteredData}
+          visibleRange={visibleRange}
+          showValue={showValue}
+          handleScroll={(e) => {
+            setVisibleRange(([start, end]) => {
+              const step = Math.max(100, showValue / 10);
+              const newStart = e.deltaY > 0 ? Math.min(start + step, data.length - showValue) : Math.max(start - step, 0);
+              return [newStart, newStart + showValue];
+            });
+          }}
+        />
+      )}
       <RangeControls
         showValue={showValue}
         handleSlider1Change={(value) => {
