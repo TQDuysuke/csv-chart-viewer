@@ -7,7 +7,7 @@ export default function AppFooter() {
             <strong>Trường Đại học Cần Thơ - Trường Bách Khoa - Khoa Tự Động Hóa</strong>
         </p>
         <p>
-            Guided by <strong> Dr. Nguyễn Văn Khanh</strong>
+            Supervise by <strong> Dr. Nguyễn Văn Khanh</strong>
         </p>
         <p>
             <strong>Project: </strong> Design and testing of single-channel ECG signal acquisition equipment

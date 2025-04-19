@@ -89,50 +89,59 @@ export default function CSVChartApp() {
   const fetchData = async () => {
     if (!isAuthenticated) return; // Ensure no data fetching occurs if not authenticated
     try {
-      const response = await fetch("https://database.tqduy.id.vn/", {
-        headers: {
-          "x-api-key": credentials.apiKey,
-          "x-uid": credentials.UID,
-        },
+      const url = new URL("https://database.tqduy.id.vn");
+      if (!isLiveView && selectedDate) {
+        url.searchParams.append("date", selectedDate);
+      } else if (isLiveView) {
+        const currentDate = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+        url.searchParams.append("date", currentDate);
+      }
+
+      const requestHeaders = {
+        "Content-Type": "application/json",
+        "x-api-key": credentials.apiKey, // Add API key to header
+        "x-uid": credentials.UID,       // Add UID to header
+      };
+
+      console.log("Request Command:", {
+        url: url.toString(),
+        headers: requestHeaders,
+      }); // Log the request command
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: requestHeaders,
       });
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
+
       const jsonData = await response.json();
+      console.log("Response Data:", jsonData); // Log the full response for debugging
 
-      const ipKey = Object.keys(jsonData)[0];
-      const dateKey = isLiveView ? Object.keys(jsonData[ipKey])[0] : selectedDate;
-      if (!jsonData[ipKey][dateKey]) {
-        throw new Error("No data available for the selected date");
-      }
-      const rawData = jsonData[ipKey][dateKey];
-
-      const startingTimestamp = JSON.parse(rawData[0]).t;
-
-      const parsedData = rawData.flatMap((chunk, chunkIndex) => {
-        const { values } = JSON.parse(chunk);
-        return values.map((value, index) => {
-          const totalIndex = chunkIndex * values.length + index;
-          const currentTimestamp = startingTimestamp + totalIndex * 2;
-          const date = new Date(currentTimestamp + 20 * 60 * 60 * 1000);
-
-          const hours = date.getUTCHours().toString().padStart(2, "0");
-          const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-          const seconds = date.getUTCSeconds().toString().padStart(2, "0");
-          const milliseconds = date.getUTCMilliseconds().toString().padStart(3, "0");
-
-          return {
-            time: `${hours}:${minutes}:${seconds}.${milliseconds}`,
+      if (jsonData.status === "success" && jsonData.data) {
+        const rawData = jsonData.data.map((chunk) => ({
+          t: chunk.t, // Extract the 't' value
+          values: chunk.values.map((value, index) => ({
+            time: index + 1, // Use sample index as the time
             value: value || 0,
-          };
-        });
-      });
+          })),
+        }));
 
-      setData(parsedData);
-      const startIndex = Math.max(parsedData.length - showValue, 0);
-      setFilteredData(applyKalmanFilter(parsedData, kalmanParams.q, kalmanParams.r, kalmanParams.p, kalmanParams.k));
-      setVisibleRange([startIndex, startIndex + showValue]);
-      setError(""); // Clear any previous errors
+        const firstTValue = rawData[0]?.t; // Extract the first 't' value
+        console.log("First 't' value:", firstTValue); // Log the first 't' value
+
+        const parsedData = rawData.flatMap(({ values }) => values);
+
+        setData(parsedData);
+        const startIndex = Math.max(parsedData.length - showValue, 0);
+        setFilteredData(applyKalmanFilter(parsedData, kalmanParams.q, kalmanParams.r, kalmanParams.p, kalmanParams.k));
+        setVisibleRange([startIndex, startIndex + showValue]);
+        setError(""); // Clear any previous errors
+      } else {
+        throw new Error("Unexpected server response format");
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       setError(error.message); // Set the error message
