@@ -2,31 +2,33 @@
 
 ![1-Lead ECG by EDS](public/eds-dark-logo.svg)
 
-A React-based application for visualizing 1-lead ECG data in a chart format. The app supports data filtering using a Kalman filter and allows zooming and scrolling through the data.
+A React-based application for visualizing 1-lead ECG data. This app enables users to filter, zoom, and scroll through ECG data while providing a responsive and user-friendly interface.
 
 ## Features
 
-- Fetch data from a remote API.
-- Visualize data using a responsive line chart.
-- Apply a Kalman filter to smooth the data.
-- Zoom and scroll through the chart.
-- Adjustable parameters for the Kalman filter.
-- Dark mode toggle and logout functionality.
+- **Data Fetching**: Retrieve ECG data from a remote API.
+- **Interactive Visualization**: Display data using a responsive line chart.
+- **Data Smoothing**: Apply a Kalman filter with adjustable parameters (`Q`, `R`, `P`, `K`).
+- **Navigation**: Zoom and scroll through the chart for detailed analysis.
+- **Dark Mode**: Toggle between light and dark themes.
+- **User Authentication**: Log in using `UID` and `API Key`.
+- **Logout Functionality**: Securely log out of the application.
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the Repository**:
    ```bash
    git clone https://github.com/your-repo/1-lead-ecg.git
    cd 1-lead-ecg
    ```
 
-2. Install dependencies:
+2. **Install Dependencies**:
    ```bash
    npm install
    ```
 
-3. Create a `.env` file in the root directory and add the following environment variables:
+3. **Set Up Environment Variables**:
+   Create a `.env` file in the root directory and add the following:
    ```
    REACT_APP_API_KEY=your_api_key
    REACT_APP_UID=your_uid
@@ -34,32 +36,33 @@ A React-based application for visualizing 1-lead ECG data in a chart format. The
 
 ## Usage
 
-1. Start the development server:
+1. **Start the Development Server**:
    ```bash
    npm start
    ```
 
-2. Open the app in your browser at `http://localhost:3000`.
+2. **Access the Application**:
+   Open your browser and navigate to `http://localhost:3000`.
 
-3. Log in using your `UID` and `API Key`.
+3. **Log In**:
+   Enter your `UID` and `API Key` to access the app.
 
-4. Use the controls to:
-   - Navigate through the data (`Prev` and `Next` buttons).
-   - Adjust the zoom level.
-   - Change the number of visible data points.
-   - Modify Kalman filter parameters (`Q`, `R`, `P`, `K`) and apply the filter.
+4. **Explore the Features**:
+   - Navigate through the data using the `Prev` and `Next` buttons.
+   - Adjust the zoom level and the number of visible data points.
+   - Modify Kalman filter parameters and apply the filter.
+   - Toggle between light and dark modes for better visibility.
 
-5. Toggle between light and dark mode using the toggle button.
-
-6. Log out using the logout button next to the `UID`.
+5. **Log Out**:
+   Use the logout button next to the `UID` to securely exit the application.
 
 ## Dependencies
 
-- React
-- Recharts
-- js-cookie
-- rc-slider
+- **React**: Frontend framework.
+- **Recharts**: Charting library for data visualization.
+- **js-cookie**: Manage cookies for user authentication.
+- **rc-slider**: Slider component for parameter adjustments.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
