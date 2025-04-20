@@ -123,7 +123,7 @@ body.light-mode {
 }
 
 body.dark-mode {
-  --input-bg: #333333; /* Dark gray background for dark mode */
+  --input-bg: #141414; /* Dark gray background for dark mode */
   --input-text: #ffffff; /* White text for dark mode */
   background-color: #121212;
   color: #ffffff;
@@ -209,12 +209,12 @@ body.dark-mode {
 }
 
 /* Login container styles */
-.login-container {
+.login-container{
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #2ecc71, #27ae60); /* Green gradient background */
+  background: #141414; /* Green gradient background */
   padding: 20px;
   box-sizing: border-box;
 }

@@ -31,23 +31,33 @@ export default function CSVChartApp() {
   const [visibleRange, setVisibleRange] = useState([0, 1000]);
   const [showValue, setShowValue] = useState(1000);
   const [kalmanParams, setKalmanParams] = useState({ q: 1, r: 1, p: 1, k: 1 });
-  const [isLiveView, setIsLiveView] = useState(true);
+  const [isLiveView, setIsLiveView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [error, setError] = useState(""); // State to store error messages
+  const [pointer1, setPointer1] = useState(0); // Pointer 1 state
+  const [pointer2, setPointer2] = useState(200); // Pointer 2 state
 
   useEffect(() => {
     // Check for existing login credentials in cookies
     const savedUID = Cookies.get("UID");
     const savedApiKey = Cookies.get("apiKey");
+    const savedTheme = Cookies.get("isDarkMode"); // Load theme state from cookies
     if (savedUID && savedApiKey) {
       setCredentials({ UID: savedUID, apiKey: savedApiKey });
       setIsAuthenticated(true);
     }
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === "true"); // Convert string to boolean
+    }
   }, []);
 
   const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      Cookies.set("isDarkMode", newMode, { expires: 7 }); // Save theme state to cookies
+      return newMode;
+    });
   };
 
   const handleLogin = ({ UID, apiKey }) => {
@@ -77,7 +87,8 @@ export default function CSVChartApp() {
 
   useEffect(() => {
     if (!isAuthenticated || !isLiveView) return; // Pause data fetching if not authenticated
-    const interval = setInterval(fetchData, 3000);
+    fetchData(); // Fetch data immediately on the first load
+    const interval = setInterval(fetchData, 20000); // Then fetch every 10 seconds
     return () => clearInterval(interval);
   }, [isAuthenticated, isLiveView, showValue, kalmanParams]);
 
@@ -129,10 +140,15 @@ export default function CSVChartApp() {
           })),
         }));
 
-        const firstTValue = rawData[0]?.t; // Extract the first 't' value
-        console.log("First 't' value:", firstTValue); // Log the first 't' value
+        const firstTimestamp = new Date(rawData[0]?.t).getTime(); // Use the first 't' value of the entire dataset
+        console.log("First timestamp of dataset:", firstTimestamp); // Log the first timestamp
 
-        const parsedData = rawData.flatMap(({ values }) => values);
+        const parsedData = rawData.flatMap(({ values }, chunkIndex) =>
+          values.map((value, index) => ({
+            ...value,
+            time: firstTimestamp + (chunkIndex * values.length + index) * 2, // Calculate time relative to the first timestamp
+          }))
+        );
 
         setData(parsedData);
         const startIndex = Math.max(parsedData.length - showValue, 0);
@@ -191,11 +207,26 @@ export default function CSVChartApp() {
           });
         }}
         visibleRange={visibleRange}
-        handleSlider2Change={(start) => setVisibleRange([start, start + showValue])}
+        handleSlider2Change={(start) => {
+          setVisibleRange([start, start + showValue]);
+          // Keep pointers unchanged when adjusting the visible range
+        }}
         filteredData={filteredData}
         handleJumpToStart={() => setVisibleRange([0, showValue])}
-        handlePrev={() => setVisibleRange(([start]) => [Math.max(start - showValue, 0), Math.max(start, showValue)])}
-        handleNext={() => setVisibleRange(([start]) => [Math.min(start + showValue, data.length - showValue), Math.min(start + 2 * showValue, data.length)])}
+        handlePrev={() => {
+          setVisibleRange(([start]) => {
+            const newStart = Math.max(start - showValue, 0);
+            return [newStart, newStart + showValue];
+          });
+          // Keep pointers unchanged when navigating
+        }}
+        handleNext={() => {
+          setVisibleRange(([start]) => {
+            const newStart = Math.min(start + showValue, data.length - showValue);
+            return [newStart, newStart + showValue];
+          });
+          // Keep pointers unchanged when navigating
+        }}
         handleJumpToEnd={() => setVisibleRange([Math.max(data.length - showValue, 0), data.length])}
         isLiveView={isLiveView}
         handleExportData={() => {
