@@ -22,8 +22,8 @@
 
 .pointer1-button {
   transition: background-color 0.3s ease, color 0.3s ease;
-  background: linear-gradient(90deg, #ae2727, #cc2e2e); /* Green gradient */
-  color: white;
+  background: linear-gradient(90deg, #db4343, #db4343); /* Updated green gradient */
+  color: rgb(218, 218, 218);
   border: none;
   border-radius: 5px;
   padding: 10px;
@@ -33,8 +33,8 @@
 }
 .pointer2-button {
     transition: background-color 0.3s ease, color 0.3s ease;
-    background: linear-gradient(90deg, #27ae60, #2ecc71); /* Green gradient */
-    color: white;
+    background: linear-gradient(90deg, #81c784, #66bb6a); /* Updated green gradient */
+    color: rgb(218, 218, 218);
     border: none;
     border-radius: 5px;
     padding: 10px;
@@ -48,7 +48,7 @@
 }
 
 .reset-button {
-  background: linear-gradient(90deg, #27ae60, #2ecc71); /* Green gradient */
+  background: linear-gradient(90deg, #81c784, #66bb6a); /* Updated green gradient */
   color: white;
   border: none;
   border-radius: 5px;

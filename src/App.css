@@ -7,6 +7,9 @@ body {
     sans-serif;
   background-color: #f9f9f9;
   color: #333;
+  height: 100vh; /* Ensure the body takes the full viewport height */
+  display: flex;
+  flex-direction: column;
 }
 
 button {
@@ -42,7 +45,7 @@ label {
 
 /* Header styles */
 .app-header {
-  background: linear-gradient(90deg, #2ecc71, #27ae60); /* Green gradient */
+  background: #81c784; /* Updated green gradient */
   color: white;
   display: flex;
   justify-content: space-between;
@@ -67,11 +70,12 @@ label {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  flex: 1; /* Allow the main container to expand and fill available space */
 }
 
 /* Buttons */
 .button-primary {
-  background: linear-gradient(90deg, #27ae60, #2ecc71); /* Green gradient */
+  background: linear-gradient(90deg, #81c784, #66bb6a); /* Updated green gradient */
   color: white;
   border: none;
   border-radius: 8px;
@@ -79,6 +83,7 @@ label {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
   width: 100%; /* Full width for mobile */
 }
@@ -104,7 +109,7 @@ label {
 }
 
 .status-live {
-  background-color: #cc402e; /* Green for live status */
+  background-color: #81c784; /* Updated green for live status */
 }
 
 .mt-4 {
@@ -112,7 +117,7 @@ label {
 }
 
 .status-replay {
-  background-color: #27ae60; /* Light green for replay status */
+  background-color: #81c784; /* Updated green for replay status */
 }
 
 body.light-mode {
@@ -191,7 +196,7 @@ body.dark-mode {
   text-align: center;
   padding: 15px 10px;
   font-size: 14px;
-  margin-top: 20px;
+  margin-top: auto; /* Push the footer to the bottom of the screen */
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -271,7 +276,7 @@ body.dark-mode {
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #27ae60;
+  color: #81c784; /* Updated green for login form heading */
 }
 
 .login-form label {
@@ -293,13 +298,13 @@ body.dark-mode {
 }
 
 .login-form input:focus {
-  border-color: #27ae60;
+  border-color: #81c784; /* Updated green for input focus */
   outline: none;
-  box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+  box-shadow: 0 0 5px rgba(129, 199, 132, 0.5); /* Updated green shadow */
 }
 
 .login-form .button-primary {
-  background: linear-gradient(90deg, #27ae60, #2ecc71);
+  background: linear-gradient(90deg, #81c784, #66bb6a); /* Updated green gradient */
   color: white;
   border: none;
   border-radius: 5px;

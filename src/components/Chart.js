@@ -64,7 +64,8 @@ export default function Chart({ data, visibleRange, showValue, handleScroll }) {
           data={data.slice(visibleRange[0], visibleRange[1])}
           onClick={handleChartClick}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="1 1" stroke="#ccc" /> {/* Small box grid */}
+          <CartesianGrid strokeDasharray="5 5" stroke="#aaa" /> {/* Large box grid */}
           <XAxis
             dataKey={data[0]?.t ? "t" : "time"}
             interval={Math.max(1, Math.floor(showValue / 10))}
