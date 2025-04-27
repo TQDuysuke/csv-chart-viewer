@@ -1,0 +1,26 @@
+[debug] [2025-04-21T07:36:56.935Z] ----------------------------------------------------------------------
+[debug] [2025-04-21T07:36:56.940Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Tran Duy\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-04-21T07:36:56.941Z] CLI Version:   14.2.0
+[debug] [2025-04-21T07:36:56.941Z] Platform:      win32
+[debug] [2025-04-21T07:36:56.941Z] Node Version:  v22.12.0
+[debug] [2025-04-21T07:36:56.941Z] Time:          Mon Apr 21 2025 14:36:56 GMT+0700 (Indochina Time)
+[debug] [2025-04-21T07:36:56.941Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-21T07:36:57.095Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-21T07:36:57.095Z] > authorizing via signed-in user (tranduyworkspace@gmail.com)
+[debug] [2025-04-21T07:36:57.095Z] [iam] checking project b2110270-d51c6 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-04-21T07:36:57.096Z] Checked if tokens are valid: false, expires at: 1745164450841
+[debug] [2025-04-21T07:36:57.096Z] Checked if tokens are valid: false, expires at: 1745164450841
+[debug] [2025-04-21T07:36:57.097Z] > refreshing access token with scopes: []
+[debug] [2025-04-21T07:36:57.098Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-04-21T07:36:57.098Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-04-21T07:36:57.305Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-04-21T07:36:57.306Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-04-21T07:36:57.310Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/b2110270-d51c6:testIamPermissions [none]
+[debug] [2025-04-21T07:36:57.310Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/b2110270-d51c6:testIamPermissions x-goog-quota-user=projects/b2110270-d51c6
+[debug] [2025-04-21T07:36:57.310Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/b2110270-d51c6:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-04-21T07:36:58.306Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/b2110270-d51c6:testIamPermissions 200
+[debug] [2025-04-21T07:36:58.306Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/b2110270-d51c6:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-04-21T07:36:58.307Z] Checked if tokens are valid: true, expires at: 1745224616306
+[debug] [2025-04-21T07:36:58.307Z] Checked if tokens are valid: true, expires at: 1745224616306
+[debug] [2025-04-21T07:36:58.307Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/b2110270-d51c6 [none]
